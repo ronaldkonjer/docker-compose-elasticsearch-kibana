@@ -1,12 +1,12 @@
 version: '3.7'
 services:
-  elasticsearch1:
+  elasticsearch1-2:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.4.2
-    container_name: elasticsearch1
+    container_name: elasticsearch1-2
     environment:
-      - node.name=elasticsearch1
-      - cluster.name=docker-cluster
-      - cluster.initial_master_nodes=elasticsearch1
+      - node.name=elasticsearch1-2
+      - cluster.name=docker-cluster-2
+      - cluster.initial_master_nodes=elasticsearch1-2
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms256M -Xmx256M"
       - http.cors.enabled=true
@@ -39,27 +39,27 @@ services:
         window: 10s
     volumes:
       - type: volume
-        source: logs
+        source: logs-2
         target: /var/log
       - type: volume
-        source: esdata1
+        source: esdata1-2
         target: /usr/share/elasticsearch/data
     networks:
       - elastic
       - ingress
     ports:
-      - 9200:9200
-      - 9300:9300
-  elasticsearch2:
+      - 19200:9200
+      - 19300:9300
+  elasticsearch2-2:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.4.2
-    container_name: elasticsearch2
+    container_name: elasticsearch2-2
     environment:
-      - node.name=elasticsearch2
-      - cluster.name=docker-cluster
-      - cluster.initial_master_nodes=elasticsearch1
+      - node.name=elasticsearch2-2
+      - cluster.name=docker-cluster-2
+      - cluster.initial_master_nodes=elasticsearch1-2
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms256M -Xmx256M"
-      - "discovery.zen.ping.unicast.hosts=elasticsearch1"
+      - "discovery.zen.ping.unicast.hosts=elasticsearch1-2"
       - http.cors.enabled=true
       - http.cors.allow-origin=*
       - network.host=_eth0_
@@ -90,26 +90,26 @@ services:
         window: 10s
     volumes:
       - type: volume
-        source: logs
+        source: logs-2
         target: /var/log
       - type: volume
-        source: esdata2
+        source: esdata2-2
         target: /usr/share/elasticsearch/data
     networks:
       - elastic
       - ingress
     ports:
-      - 9201:9200
-#  elasticsearch3:
+      - 19201:9200
+#  elasticsearch3-2:
 #    image: docker.elastic.co/elasticsearch/elasticsearch:7.4.2
-#    container_name: elasticsearch3
+#    container_name: elasticsearch3-2
 #    environment:
-#      - node.name=elasticsearch3
-#      - cluster.name=docker-cluster
-#      - cluster.initial_master_nodes=elasticsearch1
+#      - node.name=elasticsearch3-2
+#      - cluster.name=docker-cluster-2
+#      - cluster.initial_master_nodes=elasticsearch1-2
 #      - bootstrap.memory_lock=true
 #      - "ES_JAVA_OPTS=-Xms256M -Xmx256M"
-#      - "discovery.zen.ping.unicast.hosts=elasticsearch1"
+#      - "discovery.zen.ping.unicast.hosts=elasticsearch1-2"
 #      - http.cors.enabled=true
 #      - http.cors.allow-origin=*
 #      - network.host=_eth0_
@@ -140,27 +140,29 @@ services:
 #        window: 10s
 #    volumes:
 #      - type: volume
-#        source: logs
+#        source: logs-2
 #        target: /var/log
 #      - type: volume
-#        source: esdata3
+#        source: esdata3-2
 #        target: /usr/share/elasticsearch/data
 #    networks:
-#      - elastic
-#      - ingress
+#      - elastic-2
+#      - ingress-2
 #    ports:
-#      - 9202:9200
-  kibana:
+#      - 19202:9200
+  kibana-2:
     image: docker.elastic.co/kibana/kibana:7.4.2
-    container_name: kibana
+    container_name: kibana-2
     environment:
       SERVER_NAME: localhost
-      ELASTICSEARCH_HOSTS: http://elasticsearch1:9200
+      #ELASTICSEARCH_URL: http://elasticsearch1-2:19200
+      ELASTICSEARCH_HOSTS: http://elasticsearch1-2:9200
+      #ELASTICSEARCH_PORT: 19200
     ports:
-      - 5601:5601
+      - 15601:5601
     volumes:
       - type: volume
-        source: logs
+        source: logs-2
         target: /var/log
     ulimits:
       nproc: 65535
@@ -189,26 +191,26 @@ services:
     networks:
       - elastic
       - ingress
-#  auditbeat:
+#  auditbeat-2:
 #    image: docker.elastic.co/beats/auditbeat:7.4.2
 #    command: auditbeat -e -strict.perms=false
 #    user: root
 #    environment:
-#      - setup.kibana.host=kibana:5601
-#      - output.elasticsearch.hosts=["elasticsearch:9200"]
+#      - setup.kibana.host=kibana-2:15601
+#      - output.elasticsearch.hosts=["elasticsearch-2:19200"]
 #    cap_add: ['AUDIT_CONTROL', 'AUDIT_READ']
 #    pid: "host"
 #    volumes:
 #    #   - ${PWD}/configs/auditbeat.docker.yml:/usr/share/auditbeat/auditbeat.yml
 #      - /var/run/docker.sock:/var/run/docker.sock
 #    networks:
-#      - elastic
-#  metricbeat:
+#      - elastic-2
+#  metricbeat-2:
 #    image: docker.elastic.co/beats/metricbeat:7.4.2
 #    # command: --strict.perms=false
 #    environment:
-#      - setup.kibana.host=kibana:5601
-#      - output.elasticsearch.hosts=["elasticsearch:9200"]
+#      - setup.kibana.host=kibana-2:15601
+#      - output.elasticsearch.hosts=["elasticsearch-2:19200"]
 #    cap_add:
 #      - AUDIT_CONTROL
 #      - AUDIT_READ
@@ -219,87 +221,87 @@ services:
 #      - /proc:/hostfs/proc:ro
 #      - /:/hostfs:ro
 #    networks:
-#      - elastic
+#      - elastic-2
 #
-#  heartbeat:
+#  heartbeat-2:
 #    image: docker.elastic.co/beats/heartbeat:7.4.2
 #    command: --strict.perms=false
 #    environment:
-#      - setup.kibana.host=kibana:5601
-#      - output.elasticsearch.hosts=["elasticsearch:9200"]
+#      - setup.kibana.host=kibana-2:15601
+#      - output.elasticsearch.hosts=["elasticsearch-2:19200"]
 #    # volumes:
 #    #   - ${PWD}/configs/heartbeat.docker.yml:/usr/share/heartbeat/heartbeat.yml
 #    networks:
-#      - elastic
+#      - elastic-2
 #
-#  packetbeat:
+#  packetbeat-2:
 #    image: docker.elastic.co/beats/packetbeat:7.4.2
 #    command: --strict.perms=false
 #    environment:
-#      - setup.kibana.host=kibana:5601
-#      - output.elasticsearch.hosts=["elasticsearch:9200"]
+#      - setup.kibana.host=kibana-2:15601
+#      - output.elasticsearch.hosts=["elasticsearch-2:19200"]
 #    cap_add:
 #      - NET_RAW
 #      - NET_ADMIN
 #    # volumes:
 #    #   - ${PWD}/configs/packetbeat.docker.yml:/usr/share/packetbeat/packetbeat.yml
 #    networks:
-#      - elastic
+#      - elastic-2
 #
-#  filebeat:
+#  filebeat-2:
 #    image: docker.elastic.co/beats/filebeat:7.4.2
 #    command: --strict.perms=false
 #    environment:
-#      - setup.kibana.host=kibana:5601
-#      - output.elasticsearch.hosts=["elasticsearch:9200"]
+#      - setup.kibana.host=kibana-2:15601
+#      - output.elasticsearch.hosts=["elasticsearch-2:19200"]
 #    ports:
-#      - 9000:9000
+#      - 19000:9000
 #    volumes:
 #      # - ${PWD}/configs/filebeat.docker.yml:/usr/share/filebeat/filebeat.yml
 #      - /var/lib/docker/containers:/var/lib/docker/containers:ro
 #      - /var/run/docker.sock:/var/run/docker.sock
 #    networks:
-#      - elastic
-#  apmserver:
+#      - elastic-2
+#  apmserver-2:
 #    image: docker.elastic.co/apm/apm-server:7.4.2
 #    command: --strict.perms=false
 #    ports:
-#      - 8200:8200
-#      - 8201:8200
+#      - 18200:8200
+#      - 18201:8200
 #    environment:
 #      - apm-server.host=0.0.0.0
-#      - setup.kibana.host=kibana:5601
-#      - output.elasticsearch.hosts=["elasticsearch:9200"]
+#      - setup.kibana.host=kibana-2:15601
+#      - output.elasticsearch.hosts=["elasticsearch-2:19200"]
 #    # volumes:
 #    #   - ${PWD}/configs/apm-server.yml:/usr/share/apm-server/apm-server.yml
 #    networks:
-#        - elastic
-#  app-search:
+#        - elastic-2
+#  app-search-2:
 #    image: docker.elastic.co/app-search/app-search:7.4.2
 #    ports:
-#      - 3002:3002
+#      - 13002:3002
 #    environment:
 #      secret_session_key: supersecretsessionkey
-#      elasticsearch.host: http://elasticsearch1:9200/
+#      elasticsearch.host: http://elasticsearch1-2:19200/
 #      allow_es_settings_modification: "true"
 #    networks:
-#        - elastic
-#  nginx:
+#        - elastic-2
+#  nginx-2:
 #    image: nginx:latest
 #    ports:
-#        - 8081:80
+#        - 8181:80
 #    volumes:
-#        - ${PWD}/nginx-config/:/etc/nginx/conf.d/
+#        - ${PWD}/nginx-2-config/:/etc/nginx/conf.d/
 #    command: /bin/bash -c "nginx -g 'daemon off;'"
 #    ulimits:
 #      nproc: 65535
 #    networks:
-#      - ingress
+#      - ingress-2
 volumes:
-  esdata1:
-  esdata2:
-#  esdata3:
-  logs:
+  esdata1-2:
+  esdata2-2:
+#  esdata3-2:
+  logs-2:
 
 networks:
   elastic:
